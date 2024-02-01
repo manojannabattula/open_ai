@@ -5,7 +5,7 @@ import OpenAI from "openai";
 
 dotenv.config()
 
-const openai_manoj = new OpenAI({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
@@ -22,19 +22,20 @@ app.get('/', async (req, res) => {
 app.post('/', async (req, res) => {
   try {
     const prompt = req.body.prompt;
+    console.log(`prompt to openai: ${prompt}`);
 
-    const response = await openai_manoj.createCompletion({
-      model: "text-davinci-003",
-      prompt: `${prompt}`,
-      temperature: 0, // Higher values means the model will take more risks.
-      max_tokens: 3000, // The maximum number of tokens to generate in the completion. Most models have a context length of 2048 tokens (except for the newest models, which support 4096).
-      top_p: 1, // alternative to sampling with temperature, called nucleus sampling
-      frequency_penalty: 0.5, // Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-      presence_penalty: 0, // Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
+    const completion = await openai.chat.completions.create({
+      messages: [{ role: "system", content: `${prompt}` }],
+      model: "gpt-3.5-turbo",
     });
 
+    const jsonString = JSON.stringify(completion, null, 2);
+    console.log(`printing response from openai:${jsonString}`)
+ 
+    console.log(`response from openai: ${completion.choices[0].message.content}`);
+
     res.status(200).send({
-      bot: response.data.choices[0].text
+      bot: completion.choices[0]
     });
 
   } catch (error) {
@@ -43,4 +44,4 @@ app.post('/', async (req, res) => {
   }
 })
 
-app.listen(5000, () => console.log('Server is running on port http://localhost:5000'));
+app.listen(5174, () => console.log('Server is running on port http://localhost:5174'));

@@ -25,7 +25,7 @@ function typeText(element, text) {
 
     let interval = setInterval(() => {
         if (index < text.length) {
-            element.innerHTML += text.chartAt(index)
+            element.innerHTML += text.charAt(index)
             index++
         } else {
             clearInterval(interval)
@@ -86,7 +86,7 @@ const handleSubmit = async (e) => {
     // messageDiv.innerHTML = "..."
     loader(messageDiv)
 
-    const response = await fetch('http://localhost:5000', {
+    const response = await fetch('http://localhost:5174', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -100,8 +100,10 @@ const handleSubmit = async (e) => {
     messageDiv.innerHTML = " "
 
     if (response.ok) {
-        const data = await response.json();
-        const parsedData = data.bot.trim() // trims any trailing spaces/'\n' 
+        const jsonData = await response.json();
+        const jsonString = JSON.stringify(jsonData, null, 2);
+        console.log(`printing response from server:${jsonString}`)
+        const parsedData = jsonData.bot.message.content.trim() // trims any trailing spaces/'\n' 
 
         typeText(messageDiv, parsedData)
     } else {
